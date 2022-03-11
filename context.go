@@ -28,7 +28,7 @@ func (ctx *Context) Shutdown() {
 }
 
 func NewContext() *Context {
-	transport := &transport{tcpConn: make(map[string]net.Conn)}
+	transport := &transport{}
 	transport.RootContext = actor.NewActorSystem().Root
 	transport.Pid = transport.Spawn(actor.PropsFromProducer(func() actor.Actor { return transport }))
 

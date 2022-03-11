@@ -10,8 +10,8 @@ import (
 
 type transport struct {
 	*actor.RootContext
-	Pid *actor.PID
-	tcpConn map[string]net.Conn
+	Pid     *actor.PID
+	tcpConn []net.Conn
 }
 
 func (t *transport) Receive(context actor.Context) {
@@ -31,12 +31,8 @@ func (t *transport) Receive(context actor.Context) {
 
 func (t *transport) read(conn net.Conn) {
 	buff := make([]byte, 1024)
-	t.tcpConn[conn.RemoteAddr().String()] = conn
-
-	defer func() {
-		delete(t.tcpConn, conn.RemoteAddr().String())
-		conn.Close()
-	}()
+	t.tcpConn = append(t.tcpConn, conn)
+	defer conn.Close()
 
 	for {
 		_, err := conn.Read(buff)
