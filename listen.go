@@ -14,6 +14,7 @@ func (l *listen) server(transport *transport) error {
 			return err
 		}
 
+		transport.tcpConn = append(transport.tcpConn, conn)
 		go transport.read(conn)
 	}
 }
@@ -23,14 +24,10 @@ func (l *listen) Close() {
 }
 
 func NewListen(addr *net.TCPAddr) (*listen, error) {
-	listen := &listen{}
-
 	l, err := net.ListenTCP("tcp", addr)
 	if err != nil {
 		return nil, err
 	}
 
-	listen.tcp = l
-
-	return listen, nil
+	return &listen{addr:addr, tcp:l}, nil
 }

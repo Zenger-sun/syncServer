@@ -31,7 +31,6 @@ func (t *transport) Receive(context actor.Context) {
 
 func (t *transport) read(conn net.Conn) {
 	buff := make([]byte, 1024)
-	t.tcpConn = append(t.tcpConn, conn)
 	defer conn.Close()
 
 	for {
