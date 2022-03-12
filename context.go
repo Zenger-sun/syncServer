@@ -2,8 +2,9 @@ package syncServer
 
 import (
 	"fmt"
-	"github.com/AsynkronIT/protoactor-go/actor"
 	"net"
+
+	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
 type Context struct {

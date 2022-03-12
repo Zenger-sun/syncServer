@@ -3,6 +3,7 @@ package syncServer
 import (
 	"fmt"
 	"net"
+
 	"syncServer/proto"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
