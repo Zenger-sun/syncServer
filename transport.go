@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"syncServer/proto"
+	"syncServer/pb"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
@@ -19,13 +19,19 @@ func (t *transport) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *actor.Started:
 		fmt.Println("sync start!")
-	case *proto.Conn:
+
+	case *pb.Conn:
 		if _, ok := t.conn[msg.Conn.RemoteAddr().String()]; !ok {
 			t.conn[msg.Conn.RemoteAddr().String()] = msg.Conn
 		}
-	case *proto.Close:
+
+	case *pb.Close:
+		if _, ok := t.conn[msg.Addr]; ok {
+			t.conn[msg.Addr].Close()
+		}
 		delete(t.conn, msg.Addr)
-	case *proto.Req:
+
+	case *pb.Req:
 		fmt.Printf("Content: %s\n", msg.Content)
 
 		// todo
@@ -42,7 +48,7 @@ func (t *transport) read(conn net.Conn) {
 	buff := make([]byte, 1024)
 
 	defer func() {
-		t.Send(t.Pid, &proto.Close{Addr: conn.RemoteAddr().String()})
+		t.Send(t.Pid, &pb.Close{Addr: conn.RemoteAddr().String()})
 		conn.Close()
 	}()
 
@@ -55,7 +61,7 @@ func (t *transport) read(conn net.Conn) {
 			return
 		}
 
-		t.Send(t.Pid, &proto.Req{Content: string(buff)})
+		t.Send(t.Pid, &pb.Req{Content: string(buff)})
 	}
 }
 

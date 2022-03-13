@@ -2,7 +2,7 @@ package syncServer
 
 import (
 	"net"
-	"syncServer/proto"
+	"syncServer/pb"
 )
 
 type listen struct {
@@ -17,7 +17,7 @@ func (l *listen) server(transport *transport) error {
 			return err
 		}
 
-		transport.Send(transport.Pid, &proto.Conn{Conn:conn})
+		transport.Send(transport.Pid, &pb.Conn{Conn: conn})
 		go transport.read(conn)
 	}
 }
