@@ -30,6 +30,11 @@ func main() {
 
 	for {
 		fmt.Scanf("%s", &msg)
+		if msg == "close" {
+			conn.Close()
+			continue
+		}
+
 		buff.WriteString("[client1] ")
 		buff.WriteString(msg)
 

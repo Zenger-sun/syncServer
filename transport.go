@@ -11,20 +11,28 @@ import (
 
 type transport struct {
 	*actor.RootContext
-	Pid     *actor.PID
-	tcpConn []net.Conn
+	Pid  *actor.PID
+	conn map[string]net.Conn
 }
 
 func (t *transport) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *actor.Started:
 		fmt.Println("sync start!")
-	case *proto.Ack:
+	case *proto.Conn:
+		if _, ok := t.conn[msg.Conn.RemoteAddr().String()]; !ok {
+			t.conn[msg.Conn.RemoteAddr().String()] = msg.Conn
+		}
+	case *proto.Close:
+		delete(t.conn, msg.Addr)
 	case *proto.Req:
 		fmt.Printf("Content: %s\n", msg.Content)
-		for _, conn := range t.tcpConn {
-			t.write(conn, []byte(msg.Content))
-		}
+
+		// todo
+		//pack msg
+
+		t.broadcast([]byte(msg.Content))
+
 	default:
 		fmt.Printf("undefined msg: %v\n", msg)
 	}
@@ -32,7 +40,11 @@ func (t *transport) Receive(context actor.Context) {
 
 func (t *transport) read(conn net.Conn) {
 	buff := make([]byte, 1024)
-	defer conn.Close()
+
+	defer func() {
+		t.Send(t.Pid, &proto.Close{Addr: conn.RemoteAddr().String()})
+		conn.Close()
+	}()
 
 	for {
 		_, err := conn.Read(buff)
@@ -47,6 +59,19 @@ func (t *transport) read(conn net.Conn) {
 	}
 }
 
-func (t *transport) write(conn net.Conn, msg []byte) {
-	conn.Write(msg)
+func (t *transport) broadcast(msg []byte) error {
+	for _, conn := range t.conn {
+		if _, err := conn.Write(msg); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func NewTransport() *transport {
+	transport := &transport{conn: make(map[string]net.Conn)}
+	transport.RootContext = actor.NewActorSystem().Root
+	transport.Pid = transport.Spawn(actor.PropsFromProducer(func() actor.Actor { return transport }))
+	return transport
 }

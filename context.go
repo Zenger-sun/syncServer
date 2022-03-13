@@ -3,8 +3,6 @@ package syncServer
 import (
 	"fmt"
 	"net"
-
-	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
 type Context struct {
@@ -25,14 +23,9 @@ func (ctx *Context) Setup(addr *net.TCPAddr) {
 
 func (ctx *Context) Shutdown() {
 	fmt.Println("syncServer Shutdown...")
-	ctx.listen.Close()
+	ctx.listen.close()
 }
 
 func NewContext() *Context {
-	transport := &transport{}
-	transport.RootContext = actor.NewActorSystem().Root
-	transport.Pid = transport.Spawn(actor.PropsFromProducer(func() actor.Actor { return transport }))
-
-	return &Context{transport:transport}
+	return &Context{transport: NewTransport()}
 }
-

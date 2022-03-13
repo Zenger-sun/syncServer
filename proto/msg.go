@@ -1,5 +1,7 @@
 package proto
 
+import "net"
+
 type Req struct {
 	Content string
 }
@@ -8,5 +10,10 @@ type Res struct {
 	Content string
 }
 
-type Ack struct {
+type Conn struct {
+	Conn net.Conn
+}
+
+type Close struct {
+	Addr string
 }

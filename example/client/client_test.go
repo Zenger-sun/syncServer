@@ -51,7 +51,6 @@ func Benchmark_syncServer(b *testing.B) {
 		if err != nil {
 			panic(err)
 		}
-		conn.Write([]byte(fmt.Sprintf("client%d", i)))
 		tcpConn = append(tcpConn, conn)
 	}
 

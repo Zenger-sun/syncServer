@@ -1,10 +1,13 @@
 package syncServer
 
-import "net"
+import (
+	"net"
+	"syncServer/proto"
+)
 
 type listen struct {
 	addr net.Addr
-	tcp *net.TCPListener
+	tcp  *net.TCPListener
 }
 
 func (l *listen) server(transport *transport) error {
@@ -14,12 +17,12 @@ func (l *listen) server(transport *transport) error {
 			return err
 		}
 
-		transport.tcpConn = append(transport.tcpConn, conn)
+		transport.Send(transport.Pid, &proto.Conn{Conn:conn})
 		go transport.read(conn)
 	}
 }
 
-func (l *listen) Close() {
+func (l *listen) close() {
 	l.tcp.Close()
 }
 
@@ -29,5 +32,5 @@ func NewListen(addr *net.TCPAddr) (*listen, error) {
 		return nil, err
 	}
 
-	return &listen{addr:addr, tcp:l}, nil
+	return &listen{addr: addr, tcp: l}, nil
 }
