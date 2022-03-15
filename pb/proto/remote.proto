@@ -7,3 +7,7 @@ option go_package = "../../pb";
 message SyncMsg {
   string content = 1;
 }
+
+message ServerReq {
+  string content = 1;
+}

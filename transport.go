@@ -32,12 +32,10 @@ func (t *transport) Receive(context actor.Context) {
 		delete(t.conn, msg.Addr)
 
 	case *pb.Req:
-		fmt.Printf("Content: %s\n", msg.Content)
-
-		// todo
-		//pack msg
-
-		t.broadcast([]byte(msg.Content))
+		err := t.write(msg)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 	default:
 		fmt.Printf("undefined msg: %v\n", msg)
@@ -61,15 +59,47 @@ func (t *transport) read(conn net.Conn) {
 			return
 		}
 
-		t.Send(t.Pid, &pb.Req{Content: string(buff)})
+		head := UnpackHead(buff)
+		req, err := UnpackReq(head, buff)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		t.Send(t.Pid, req)
 	}
 }
 
-func (t *transport) broadcast(msg []byte) error {
+func (t *transport) write(msg *pb.Req) error {
+	var err error
+
+	switch msg.Head.WriteType {
+	case pb.BROADCAST_ALL:
+		err = t.broadcast(msg)
+	case pb.SERVER_REQ:
+		err = t.serverReq(msg)
+	}
+
+	return err
+}
+
+func (t *transport) broadcast(msg *pb.Req) error {
+	msg.Head.WriteType = pb.BROADCAST_RES
+	res := PackMsg(msg.Head, msg.Content)
+
 	for _, conn := range t.conn {
-		if _, err := conn.Write(msg); err != nil {
+		if _, err := conn.Write(res.Bytes()); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (t *transport) serverReq(msg *pb.Req) error {
+	switch msg := msg.Content.(type) {
+	case *pb.ServerReq:
+		fmt.Println(msg.Content)
 	}
 
 	return nil
