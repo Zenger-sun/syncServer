@@ -8,6 +8,8 @@ message SyncMsg {
   string content = 1;
 }
 
-message ServerReq {
-  string content = 1;
+message LoginReq {}
+
+message LoginRes {
+  uint32 user_id = 1;
 }

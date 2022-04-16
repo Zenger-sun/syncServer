@@ -47,6 +47,8 @@ type Head struct {
 	MsgType   MsgType
 	WriteType WriteType
 	LockStep  bool
+
+	Addr string
 }
 
 type Req struct {

@@ -60,6 +60,7 @@ func (t *transport) read(conn net.Conn) {
 		}
 
 		head := UnpackHead(buff)
+		head.Addr = conn.RemoteAddr().String()
 		req, err := UnpackReq(head, buff)
 		if err != nil {
 			fmt.Println(err)
