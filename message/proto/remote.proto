@@ -2,14 +2,17 @@ syntax = "proto3";
 
 package goproto.protoc.proto3;
 
-option go_package = "../../pb";
+option go_package = "../../message";
 
 message SyncMsg {
   string content = 1;
 }
 
-message LoginReq {}
+message LoginReq {
+  uint32 user_id = 1;
+}
 
 message LoginRes {
   uint32 user_id = 1;
+  bool   result = 2;
 }

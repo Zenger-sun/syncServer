@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 	"syncServer"
-	"syncServer/pb"
+	"syncServer/message"
 )
 
 const (
@@ -50,10 +50,10 @@ func main() {
 		buff.WriteString("[client2] ")
 		buff.WriteString(msg)
 
-		req := &pb.SyncMsg{Content:buff.String()}
-		head := &pb.Head{
-			MsgType:   pb.SYNC_MSG,
-			WriteType: pb.BROADCAST_ALL,
+		req := &msg.SyncMsg{Content: buff.String()}
+		head := &msg.Head{
+			MsgType:   msg.SYNC_MSG,
+			WriteType: msg.BROADCAST_ALL,
 			LockStep:  false,
 		}
 

@@ -1,8 +1,6 @@
-package pb
+package message
 
 import (
-	"net"
-
 	"github.com/golang/protobuf/proto"
 )
 
@@ -26,42 +24,16 @@ type MsgType uint16
 const (
 	_ MsgType = iota
 	SYNC_MSG
-	SERVER_MSG
+	LOGIN_MSG
 )
 
 func (m MsgType) GetMsgStruct() proto.Message {
 	switch m {
 	case SYNC_MSG:
 		return &SyncMsg{}
-	case SERVER_MSG:
-		return &ServerReq{}
+	case LOGIN_MSG:
+		return &LoginReq{}
 	}
 
 	return nil
-}
-
-// ******* remote *******
-
-type Head struct {
-	Len       uint32
-	MsgType   MsgType
-	WriteType WriteType
-	LockStep  bool
-
-	Addr string
-}
-
-type Req struct {
-	Head    *Head
-	Content proto.Message
-}
-
-// ******* internal *******
-
-type Conn struct {
-	Conn net.Conn
-}
-
-type Close struct {
-	Addr string
 }

@@ -1,36 +1,45 @@
 package syncServer
 
 import (
+	"fmt"
 	"net"
-	"syncServer/pb"
+	"syncServer/message"
 )
 
 type listen struct {
+	net.Listener
 	addr net.Addr
-	tcp  *net.TCPListener
 }
 
 func (l *listen) server(transport *transport) error {
+	fmt.Printf("start listen with %s on %s.\n", l.Addr().Network(), l.Addr().String())
+
 	for {
-		conn, err := l.tcp.Accept()
+		conn, err := l.Accept()
 		if err != nil {
 			return err
 		}
 
-		transport.Send(transport.Pid, &pb.Conn{Conn: conn})
+		transport.Send(transport.Pid, &message.Conn{Conn: conn})
 		go transport.read(conn)
 	}
 }
 
 func (l *listen) close() {
-	l.tcp.Close()
+	l.Close()
 }
 
-func NewListen(addr *net.TCPAddr) (*listen, error) {
-	l, err := net.ListenTCP("tcp", addr)
-	if err != nil {
-		return nil, err
+func NewListen(addr net.Addr) (*listen, error) {
+	var l net.Listener
+	var err error
+
+	if addr.Network() == "tcp" {
+		laddr, _ := net.ResolveTCPAddr("tcp", addr.String())
+		l, err = net.ListenTCP("tcp", laddr)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return &listen{addr: addr, tcp: l}, nil
+	return &listen{addr: addr, Listener: l}, nil
 }

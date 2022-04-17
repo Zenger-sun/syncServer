@@ -3,7 +3,7 @@ package syncServer
 import (
 	"bytes"
 	"encoding/binary"
-	"syncServer/pb"
+	"syncServer/message"
 
 	"github.com/golang/protobuf/proto"
 )
@@ -12,12 +12,12 @@ const (
 	HEAD_LEN = 9
 )
 
-func UnpackHead(msg []byte) *pb.Head {
-	var head pb.Head
+func UnpackHead(msg []byte) *message.Head {
+	var head message.Head
 
 	head.Len = uint32(msg[0]) | uint32(msg[1])<<8 | uint32(msg[2])<<16 | uint32(msg[3])<<24
-	head.MsgType = pb.MsgType(uint16(msg[4]) | uint16(msg[5])<<8)
-	head.WriteType = pb.WriteType(uint16(msg[6]) | uint16(msg[7])<<8)
+	head.MsgType = message.MsgType(uint16(msg[4]) | uint16(msg[5])<<8)
+	head.WriteType = message.WriteType(uint16(msg[6]) | uint16(msg[7])<<8)
 	if msg[8] == 0 {
 		head.LockStep = false
 	} else {
@@ -27,8 +27,8 @@ func UnpackHead(msg []byte) *pb.Head {
 	return &head
 }
 
-func UnpackReq(head *pb.Head, msg []byte) (*pb.Req, error) {
-	req := &pb.Req{}
+func UnpackReq(head *message.Head, msg []byte) (*message.Req, error) {
+	req := &message.Req{}
 	req.Head = head
 	req.Content = head.MsgType.GetMsgStruct()
 
@@ -40,7 +40,7 @@ func UnpackReq(head *pb.Head, msg []byte) (*pb.Req, error) {
 	return req, nil
 }
 
-func PackHead(head *pb.Head) *bytes.Buffer {
+func PackHead(head *message.Head) *bytes.Buffer {
 	buff := new(bytes.Buffer)
 
 	binary.Write(buff, binary.LittleEndian, head.Len)
@@ -55,7 +55,7 @@ func PackHead(head *pb.Head) *bytes.Buffer {
 	return buff
 }
 
-func PackMsg(head *pb.Head, message proto.Message) *bytes.Buffer {
+func PackMsg(head *message.Head, message proto.Message) *bytes.Buffer {
 	msg, _ := proto.Marshal(message)
 	head.Len = uint32(len(msg))
 

@@ -12,7 +12,8 @@ import (
 func main() {
 	ctx := syncServer.NewContext()
 	addr, _ := net.ResolveTCPAddr("tcp", "127.0.0.1:8000")
-	ctx.Setup(addr)
+	//cluster, _ := net.ResolveTCPAddr("tcp", "127.0.0.1:9501")
+	ctx.Setup(addr, nil)
 
 	exit := make(chan os.Signal, 1)
 	signal.Notify(exit, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)

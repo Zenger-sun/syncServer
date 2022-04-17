@@ -3,9 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/gogo/protobuf/proto"
 	"net"
 	"syncServer"
-	"syncServer/pb"
+	"syncServer/message"
 )
 
 const (
@@ -41,9 +42,9 @@ func main() {
 	msg := ""
 	buff := new(bytes.Buffer)
 	for {
-		head := &pb.Head{
-			MsgType:   pb.SYNC_MSG,
-			WriteType: pb.BROADCAST_ALL,
+		head := &message.Head{
+			MsgType:   message.SYNC_MSG,
+			WriteType: message.BROADCAST_ALL,
 			LockStep:  false,
 		}
 
@@ -51,15 +52,20 @@ func main() {
 		if msg == "close" {
 			conn.Close()
 			continue
-		} else if msg == "server" {
-			head.MsgType = pb.SERVER_MSG
-			head.WriteType = pb.SERVER_REQ
+		} else if msg == "login" {
+			head.MsgType = message.LOGIN_MSG
+			head.WriteType = message.SERVER_REQ
 		}
 
 		buff.WriteString("[client1] ")
 		buff.WriteString(msg)
 
-		req := &pb.SyncMsg{Content:buff.String()}
+		var req proto.Message
+		if msg == "login" {
+			req = &message.LoginReq{UserId: 1}
+		} else {
+			req = &message.SyncMsg{Content: buff.String()}
+		}
 
 		_, err := conn.Write(syncServer.PackMsg(head, req).Bytes())
 		if err != nil {
