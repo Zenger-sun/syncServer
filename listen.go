@@ -3,6 +3,7 @@ package syncServer
 import (
 	"fmt"
 	"net"
+
 	"syncServer/message"
 )
 
@@ -20,7 +21,7 @@ func (l *listen) server(transport *transport) error {
 			return err
 		}
 
-		transport.Send(transport.Pid, &message.Conn{Conn: conn})
+		transport.ctx.Send(trans, &message.Conn{Conn: conn})
 		go transport.read(conn)
 	}
 }

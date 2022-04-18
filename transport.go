@@ -9,16 +9,17 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
+var trans *actor.PID
+
 type transport struct {
-	*actor.RootContext
-	Pid  *actor.PID
+	ctx *actor.RootContext
 	conn map[string]net.Conn
 }
 
-func (t *transport) Receive(context actor.Context) {
-	switch msg := context.Message().(type) {
+func (t *transport) Receive(ctx actor.Context) {
+	switch msg := ctx.Message().(type) {
 	case *actor.Started:
-		fmt.Println("sync start!")
+		fmt.Println("sync transport start!")
 
 	case *message.Conn:
 		if _, ok := t.conn[msg.Conn.RemoteAddr().String()]; !ok {
@@ -42,11 +43,15 @@ func (t *transport) Receive(context actor.Context) {
 	}
 }
 
+func (t *transport) Pid() *actor.PID {
+	return trans
+}
+
 func (t *transport) read(conn net.Conn) {
-	buff := make([]byte, 1024)
+	buff := make([]byte, 102400)
 
 	defer func() {
-		t.Send(t.Pid, &message.Close{Addr: conn.RemoteAddr().String()})
+		t.ctx.Send(t.Pid(), &message.Close{Addr: conn.RemoteAddr().String()})
 		conn.Close()
 	}()
 
@@ -59,15 +64,15 @@ func (t *transport) read(conn net.Conn) {
 			return
 		}
 
-		head := UnpackHead(buff)
+		head := message.UnpackHead(buff)
 		head.Addr = conn.RemoteAddr().String()
-		req, err := UnpackReq(head, buff)
+		req, err := message.UnpackReq(head, buff)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		t.Send(t.Pid, req)
+		t.ctx.Send(t.Pid(), req)
 	}
 }
 
@@ -76,9 +81,11 @@ func (t *transport) write(msg *message.Req) error {
 
 	switch msg.Head.WriteType {
 	case message.BROADCAST_ALL:
-		err = t.broadcast(msg)
+		return t.broadcast(msg)
+	case message.BROADCAST_SINGLE:
+		return t.broadcastSingle(msg)
 	case message.SERVER_REQ:
-		err = t.serverReq(msg)
+		t.ctx.Send(svcM, msg)
 	}
 
 	return err
@@ -86,7 +93,7 @@ func (t *transport) write(msg *message.Req) error {
 
 func (t *transport) broadcast(msg *message.Req) error {
 	msg.Head.WriteType = message.BROADCAST_RES
-	res := PackMsg(msg.Head, msg.Content)
+	res := message.PackMsg(msg.Head, msg.Content)
 
 	for _, conn := range t.conn {
 		if _, err := conn.Write(res.Bytes()); err != nil {
@@ -97,10 +104,14 @@ func (t *transport) broadcast(msg *message.Req) error {
 	return nil
 }
 
-func (t *transport) serverReq(msg *message.Req) error {
-	switch msg := msg.Content.(type) {
-	case *message.LoginReq:
-		fmt.Println(msg.String())
+func (t *transport) broadcastSingle(msg *message.Req) error {
+	msg.Head.WriteType = message.BROADCAST_RES
+	res := message.PackMsg(msg.Head, msg.Content)
+
+	if conn, ok := t.conn[msg.Head.Addr]; ok {
+		if _, err := conn.Write(res.Bytes()); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -108,7 +119,7 @@ func (t *transport) serverReq(msg *message.Req) error {
 
 func NewTransport() *transport {
 	transport := &transport{conn: make(map[string]net.Conn)}
-	transport.RootContext = actor.NewActorSystem().Root
-	transport.Pid = transport.Spawn(actor.PropsFromProducer(func() actor.Actor { return transport }))
+	transport.ctx = actor.NewActorSystem().Root
+	trans = transport.ctx.Spawn(actor.PropsFromProducer(func() actor.Actor { return transport }))
 	return transport
 }

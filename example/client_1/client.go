@@ -3,10 +3,12 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/gogo/protobuf/proto"
 	"net"
-	"syncServer"
+
 	"syncServer/message"
+	"syncServer/message/pb"
+
+	"github.com/gogo/protobuf/proto"
 )
 
 const (
@@ -28,9 +30,9 @@ func main() {
 				continue
 			}
 
-			head := syncServer.UnpackHead(pack)
+			head := message.UnpackHead(pack)
 			fmt.Printf("head: %+v\t", head)
-			req, err := syncServer.UnpackReq(head, pack)
+			req, err := message.UnpackReq(head, pack)
 			if err != nil {
 				continue
 			}
@@ -62,12 +64,12 @@ func main() {
 
 		var req proto.Message
 		if msg == "login" {
-			req = &message.LoginReq{UserId: 1}
+			req = &pb.LoginReq{UserId: 1}
 		} else {
-			req = &message.SyncMsg{Content: buff.String()}
+			req = &pb.SyncMsg{Content: buff.String()}
 		}
 
-		_, err := conn.Write(syncServer.PackMsg(head, req).Bytes())
+		_, err := conn.Write(message.PackMsg(head, req).Bytes())
 		if err != nil {
 			panic(err)
 		}

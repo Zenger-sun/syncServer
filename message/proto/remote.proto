@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package goproto.protoc.proto3;
 
-option go_package = "../../message";
+option go_package = "../pb";
 
 message SyncMsg {
   string content = 1;

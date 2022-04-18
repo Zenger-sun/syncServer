@@ -1,6 +1,8 @@
 package message
 
 import (
+	"syncServer/message/pb"
+
 	"github.com/golang/protobuf/proto"
 )
 
@@ -30,10 +32,19 @@ const (
 func (m MsgType) GetMsgStruct() proto.Message {
 	switch m {
 	case SYNC_MSG:
-		return &SyncMsg{}
+		return &pb.SyncMsg{}
 	case LOGIN_MSG:
-		return &LoginReq{}
+		return &pb.LoginReq{}
 	}
 
 	return nil
+}
+
+type Head struct {
+	Len       uint32
+	MsgType   MsgType
+	WriteType WriteType
+	LockStep  bool
+
+	Addr string
 }

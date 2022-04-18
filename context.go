@@ -7,12 +7,11 @@ import (
 
 type Context struct {
 	*transport
+	*serviceM
 	listen *listen
-	cluster *cluster
 }
 
-func (ctx *Context) Setup(addr net.Addr, cluster net.Addr) {
-	// bulid server
+func (ctx *Context) Setup(addr net.Addr) {
 	listen, err := NewListen(addr)
 	if err != nil {
 		panic(err)
@@ -20,28 +19,18 @@ func (ctx *Context) Setup(addr net.Addr, cluster net.Addr) {
 	ctx.listen = listen
 	go listen.server(ctx.transport)
 
-	// build cluster
-	if cluster != nil {
-		c, err := NewCluster(cluster)
-		if err != nil {
-			panic(err)
-		}
-		ctx.cluster = c
-		go c.listen.server(ctx.transport)
-	}
+	fmt.Println("sync started!")
 }
 
 func (ctx *Context) Shutdown() {
 	fmt.Println("syncServer Shutdown...")
 	ctx.listen.close()
-
-	if ctx.cluster != nil {
-		ctx.cluster.listen.Addr()
-	}
-
 	fmt.Println("syncServer Closed!")
 }
 
 func NewContext() *Context {
-	return &Context{transport: NewTransport()}
+	return &Context{
+		transport: NewTransport(),
+		serviceM:   NewService(),
+	}
 }

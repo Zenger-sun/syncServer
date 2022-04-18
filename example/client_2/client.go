@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"net"
-	"syncServer"
+
 	"syncServer/message"
+	"syncServer/message/pb"
+
+	"github.com/gogo/protobuf/proto"
 )
 
 const (
@@ -27,9 +30,9 @@ func main() {
 				continue
 			}
 
-			head := syncServer.UnpackHead(pack)
+			head := message.UnpackHead(pack)
 			fmt.Printf("head: %+v\t", head)
-			req, err := syncServer.UnpackReq(head, pack)
+			req, err := message.UnpackReq(head, pack)
 			if err != nil {
 				continue
 			}
@@ -41,23 +44,32 @@ func main() {
 	msg := ""
 	buff := new(bytes.Buffer)
 	for {
+		head := &message.Head{
+			MsgType:   message.SYNC_MSG,
+			WriteType: message.BROADCAST_ALL,
+			LockStep:  false,
+		}
+
 		fmt.Scanf("%s", &msg)
 		if msg == "close" {
 			conn.Close()
 			continue
+		} else if msg == "login" {
+			head.MsgType = message.LOGIN_MSG
+			head.WriteType = message.SERVER_REQ
 		}
 
 		buff.WriteString("[client2] ")
 		buff.WriteString(msg)
 
-		req := &msg.SyncMsg{Content: buff.String()}
-		head := &msg.Head{
-			MsgType:   msg.SYNC_MSG,
-			WriteType: msg.BROADCAST_ALL,
-			LockStep:  false,
+		var req proto.Message
+		if msg == "login" {
+			req = &pb.LoginReq{UserId: 2}
+		} else {
+			req = &pb.SyncMsg{Content: buff.String()}
 		}
 
-		_, err := conn.Write(syncServer.PackMsg(head, req).Bytes())
+		_, err := conn.Write(message.PackMsg(head, req).Bytes())
 		if err != nil {
 			panic(err)
 		}
