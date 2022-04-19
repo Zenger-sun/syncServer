@@ -31,7 +31,7 @@ go build -o server.exe
 ## Documentation
 
 sync包含的模块如下:  
-![sync](https://user-images.githubusercontent.com/22719311/158414263-fd1ddd8e-f0b2-434e-b5de-7d4f1ffe2e07.png)
+![sync](https://user-images.githubusercontent.com/22719311/164028919-de7c7561-fa69-4c4a-82c7-dd5b97ee4f7b.png)
 listen采用tcp连接，自定义head用于解包，未加密，后续会考虑多种传输协议    
 考虑到玩家操作都是顺序的，采用actor封装transport，由transport顺序校验、分发  
 抽象出serviceM用于管理syncServer下的所有service，serviceM还可以管理路由，为后续的cluster提供接口，除此之外，serviceM还充当service的监控器，如果有service panic，还会重启service
