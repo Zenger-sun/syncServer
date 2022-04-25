@@ -26,15 +26,18 @@ type MsgType uint16
 const (
 	_ MsgType = iota
 	SYNC_MSG
-	LOGIN_MSG
+	LOGIN_REQ_MSG
+	LOGIN_RES_MSG
 )
 
 func (m MsgType) GetMsgStruct() proto.Message {
 	switch m {
 	case SYNC_MSG:
 		return &pb.SyncMsg{}
-	case LOGIN_MSG:
+	case LOGIN_REQ_MSG:
 		return &pb.LoginReq{}
+	case LOGIN_RES_MSG:
+		return &pb.LoginRes{}
 	}
 
 	return nil

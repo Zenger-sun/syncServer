@@ -33,6 +33,12 @@ func (t *transport) Receive(ctx actor.Context) {
 		delete(t.conn, msg.Addr)
 
 	case *message.Req:
+		err := t.forward(msg)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+	case *message.Res:
 		err := t.write(msg)
 		if err != nil {
 			fmt.Println(err)
@@ -76,7 +82,20 @@ func (t *transport) read(conn net.Conn) {
 	}
 }
 
-func (t *transport) write(msg *message.Req) error {
+func (t *transport) forward(msg *message.Req) error {
+	var err error
+
+	switch msg.Head.WriteType {
+	case message.SERVER_REQ:
+		t.ctx.Send(svcM, msg)
+	default:
+		t.write(&message.Res{Head:msg.Head, Content: msg.Content})
+	}
+
+	return err
+}
+
+func (t *transport) write(msg *message.Res) error {
 	var err error
 
 	switch msg.Head.WriteType {
@@ -84,14 +103,12 @@ func (t *transport) write(msg *message.Req) error {
 		return t.broadcast(msg)
 	case message.BROADCAST_SINGLE:
 		return t.broadcastSingle(msg)
-	case message.SERVER_REQ:
-		t.ctx.Send(svcM, msg)
 	}
 
 	return err
 }
 
-func (t *transport) broadcast(msg *message.Req) error {
+func (t *transport) broadcast(msg *message.Res) error {
 	msg.Head.WriteType = message.BROADCAST_RES
 	res := message.PackMsg(msg.Head, msg.Content)
 
@@ -104,7 +121,7 @@ func (t *transport) broadcast(msg *message.Req) error {
 	return nil
 }
 
-func (t *transport) broadcastSingle(msg *message.Req) error {
+func (t *transport) broadcastSingle(msg *message.Res) error {
 	msg.Head.WriteType = message.BROADCAST_RES
 	res := message.PackMsg(msg.Head, msg.Content)
 

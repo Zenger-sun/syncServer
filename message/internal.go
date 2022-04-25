@@ -11,6 +11,11 @@ type Req struct {
 	Content proto.Message
 }
 
+type Res struct {
+	Head    *Head
+	Content proto.Message
+}
+
 type Conn struct {
 	Conn net.Conn
 }

@@ -17,7 +17,7 @@ import (
 type LoginSvc struct {
 	actor.Context
 	sync  *syncServer.Context
-	users []uint32
+	users map[uint32]bool
 }
 
 func (l *LoginSvc) Receive(ctx actor.Context) {
@@ -34,10 +34,39 @@ func (l *LoginSvc) Receive(ctx actor.Context) {
 }
 
 func (l *LoginSvc) Request(req *message.Req) {
-	switch req.Content.(type) {
+	switch msg := req.Content.(type) {
 	case *pb.LoginReq:
-		req.Head.WriteType = message.BROADCAST_SINGLE
-		l.Send(l.sync.Pid(), req)
+		res := l.Login(msg)
+		res.Head.Addr = req.Head.Addr
+
+		l.Send(l.sync.Pid(), res)
+	}
+}
+
+func (l *LoginSvc) Login(req *pb.LoginReq) *message.Res  {
+	var loginRes pb.LoginRes
+
+	if _, ok := l.users[req.UserId]; !ok {
+		if req.UserId != 0 {
+			loginRes.UserId = req.UserId
+		} else {
+			loginRes.UserId = uint32(len(l.users)+1)
+		}
+
+		loginRes.Result = true
+		l.users[loginRes.UserId] = true
+	} else {
+		loginRes.UserId = req.UserId
+		loginRes.Result = false
+	}
+
+	return &message.Res{
+		Head:    &message.Head{
+			MsgType:   message.LOGIN_RES_MSG,
+			WriteType: message.BROADCAST_SINGLE,
+			LockStep:  false,
+		},
+		Content: &loginRes,
 	}
 }
 
@@ -50,7 +79,7 @@ func (l *LoginSvc) Pid() *actor.PID {
 }
 
 func NewLoginSvc(ctx *syncServer.Context) syncServer.ServiceItf {
-	return &LoginSvc{sync: ctx}
+	return &LoginSvc{sync: ctx, users: make(map[uint32]bool)}
 }
 
 func main() {
