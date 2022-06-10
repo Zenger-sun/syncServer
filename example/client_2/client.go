@@ -55,7 +55,7 @@ func main() {
 			conn.Close()
 			continue
 		} else if msg == "login" {
-			head.MsgType = message.LOGIN_MSG
+			head.MsgType = message.LOGIN_REQ_MSG
 			head.WriteType = message.SERVER_REQ
 		}
 
@@ -66,7 +66,7 @@ func main() {
 		if msg == "login" {
 			req = &pb.LoginReq{UserId: 2}
 		} else {
-			req = &pb.SyncMsg{Content: buff.String()}
+			req = &pb.TestMsg{Content: buff.String()}
 		}
 
 		_, err := conn.Write(message.PackMsg(head, req).Bytes())

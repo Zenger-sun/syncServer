@@ -4,10 +4,14 @@ package goproto.protoc.proto3;
 
 option go_package = "../pb";
 
+message TestMsg {
+    string content = 1;
+}
+
 message SyncMsg {
     uint32 user_id = 1;
     SyncTransForm sync_trans = 2;
-      SyncKey sync_key = 3;
+    SyncKey sync_key = 3;
     repeated SyncAxis sync_axis = 4;
 }
 

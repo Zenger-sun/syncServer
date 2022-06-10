@@ -45,6 +45,7 @@ func (l *LoginSvc) Request(req *message.Req) {
 
 func (l *LoginSvc) Login(req *pb.LoginReq) *message.Res  {
 	var loginRes pb.LoginRes
+	loginRes.Result = true
 
 	if _, ok := l.users[req.UserId]; !ok {
 		if req.UserId != 0 {
@@ -53,11 +54,9 @@ func (l *LoginSvc) Login(req *pb.LoginReq) *message.Res  {
 			loginRes.UserId = uint32(len(l.users)+1)
 		}
 
-		loginRes.Result = true
 		l.users[loginRes.UserId] = true
 	} else {
 		loginRes.UserId = req.UserId
-		loginRes.Result = false
 	}
 
 	return &message.Res{

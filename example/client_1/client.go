@@ -45,7 +45,7 @@ func main() {
 	buff := new(bytes.Buffer)
 	for {
 		head := &message.Head{
-			MsgType:   message.SYNC_MSG,
+			MsgType:   message.TEST_MSG,
 			WriteType: message.BROADCAST_ALL,
 			LockStep:  false,
 		}
@@ -55,7 +55,7 @@ func main() {
 			conn.Close()
 			continue
 		} else if msg == "login" {
-			head.MsgType = message.LOGIN_MSG
+			head.MsgType = message.LOGIN_REQ_MSG
 			head.WriteType = message.SERVER_REQ
 		}
 
@@ -66,7 +66,7 @@ func main() {
 		if msg == "login" {
 			req = &pb.LoginReq{UserId: 1}
 		} else {
-			req = &pb.SyncMsg{Content: buff.String()}
+			req = &pb.TestMsg{Content: buff.String()}
 		}
 
 		_, err := conn.Write(message.PackMsg(head, req).Bytes())

@@ -18,7 +18,7 @@ func Benchmark_client(b *testing.B) {
 	}
 
 	head := &message.Head{
-		MsgType:   message.LOGIN_MSG,
+		MsgType:   message.LOGIN_REQ_MSG,
 		WriteType: message.SERVER_REQ,
 		LockStep:  false,
 	}
