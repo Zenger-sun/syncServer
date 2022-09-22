@@ -9,29 +9,32 @@ message TestMsg {
 }
 
 message SyncMsg {
-    uint32 user_id = 1;
-    SyncTransForm sync_trans = 2;
-    SyncKey sync_key = 3;
-    repeated SyncAxis sync_axis = 4;
+    uint32 userId = 1;
+    MoveInput moveInput = 2;
+    DragInput viewInput = 3;
+    repeated KeyInput keyInput = 4;
 }
 
-message SyncTransForm {
-    float position_x = 1;
-    float position_y = 2;
-    float position_z = 3;
-    float rotation_x = 4;
-    float rotation_y = 5;
-    float rotation_z = 6;
+message MoveInput {
+    float x = 1;
+    float y = 2;
 }
 
-message SyncKey {
-    uint32 key_code = 1;
-    bool key_down = 2;
+message DragInput {
+    float x = 1;
+    float y = 2;
 }
 
-message SyncAxis {
-    string name = 1;
-    float value = 2;
+message KeyInput {
+    enum KeyCode
+    {
+        JUMP = 0;
+        ATTACK = 1;
+    }
+
+    KeyCode keyCode = 1;
+    bool keyDown = 2;
+    DragInput dragInput = 3;
 }
 
 message LoginReq {
