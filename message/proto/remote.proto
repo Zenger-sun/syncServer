@@ -26,13 +26,13 @@ message DragInput {
 }
 
 message KeyInput {
-    enum KeyCode
+    enum KeyType
     {
         JUMP = 0;
         ATTACK = 1;
     }
 
-    KeyCode keyCode = 1;
+    KeyType keyType = 1;
     bool keyDown = 2;
     DragInput dragInput = 3;
 }

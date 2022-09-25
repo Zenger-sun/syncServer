@@ -51,6 +51,8 @@ func (s *serviceM) findSvc(name string) ServiceItf {
 		return svc
 	}
 
+	fmt.Println("Svc Not Found!")
+
 	return nil
 }
 

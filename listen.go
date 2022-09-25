@@ -21,6 +21,7 @@ func (l *listen) server(transport *transport) error {
 			return err
 		}
 
+		fmt.Printf("start accept with %s.\n", conn.RemoteAddr())
 		transport.ctx.Send(trans, &message.Conn{Conn: conn})
 		go transport.read(conn)
 	}

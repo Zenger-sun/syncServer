@@ -14,6 +14,11 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
+const (
+	USER_ID_NOT_SET = 1
+	USER_ID_START   = 1000
+)
+
 type LoginSvc struct {
 	actor.Context
 	sync  *syncServer.Context
@@ -23,6 +28,7 @@ type LoginSvc struct {
 func (l *LoginSvc) Receive(ctx actor.Context) {
 	switch msg := ctx.Message().(type) {
 	case *actor.Started:
+		fmt.Println("LoginSvc start succ!")
 		l.Context = ctx
 
 	case *message.Req:
@@ -43,24 +49,24 @@ func (l *LoginSvc) Request(req *message.Req) {
 	}
 }
 
-func (l *LoginSvc) Login(req *pb.LoginReq) *message.Res  {
+func (l *LoginSvc) Login(req *pb.LoginReq) *message.Res {
 	var loginRes pb.LoginRes
 	loginRes.Result = true
 
-	if _, ok := l.users[req.UserId]; !ok {
-		if req.UserId != 0 {
-			loginRes.UserId = req.UserId
-		} else {
-			loginRes.UserId = uint32(len(l.users)+1)
-		}
-
+	if req.UserId == USER_ID_NOT_SET {
+		loginRes.UserId = uint32(len(l.users) + USER_ID_START)
 		l.users[loginRes.UserId] = true
 	} else {
-		loginRes.UserId = req.UserId
+		if _, ok := l.users[req.UserId]; !ok {
+			loginRes.UserId = uint32(len(l.users) + USER_ID_START)
+			l.users[loginRes.UserId] = true
+		} else {
+			loginRes.UserId = req.UserId
+		}
 	}
 
 	return &message.Res{
-		Head:    &message.Head{
+		Head: &message.Head{
 			MsgType:   message.LOGIN_RES_MSG,
 			WriteType: message.BROADCAST_SINGLE,
 			LockStep:  false,
@@ -83,7 +89,7 @@ func NewLoginSvc(ctx *syncServer.Context) syncServer.ServiceItf {
 
 func main() {
 	sync := syncServer.NewContext()
-	addr, _ := net.ResolveTCPAddr("tcp", "127.0.0.1:8000")
+	addr, _ := net.ResolveTCPAddr("tcp", "192.168.1.7:8000")
 
 	sync.Setup(addr)
 	sync.RegisterSvc(NewLoginSvc(sync))
