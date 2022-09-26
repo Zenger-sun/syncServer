@@ -4,7 +4,12 @@
 
 ## Version  
 v0.1  
-> 基本能用。目前能想到的后续计划：1、集群化；2、加入LockStep同步；3、多种传输协议尝试；4、优化Context功能，如日志模块和配置模块  
+> 基本能用。目前能想到的后续计划：  
+>    1、集群化；  
+>    2、加入LockStep同步；  
+>    3、多种传输协议尝试；  
+>    4、优化Context功能，如日志模块和配置模块;  
+>    5、限流  
 
 ## Quick start  
 
@@ -24,7 +29,7 @@ sh gen.sh
 ### Build & Run
 
 ```go
-// main()请参考 example/syncServer.go
+// main()请参考 example/main.go
 go build -o server.exe
 ```
 
