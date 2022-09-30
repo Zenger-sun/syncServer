@@ -53,7 +53,7 @@ func (t *transport) Pid() *actor.PID {
 	return trans
 }
 
-func (t *transport) read(conn net.Conn) {
+func (t *transport) readTCP(conn net.Conn) {
 	buff := make([]byte, 102400)
 
 	defer func() {
@@ -72,6 +72,31 @@ func (t *transport) read(conn net.Conn) {
 
 		head := message.UnpackHead(buff)
 		head.Addr = conn.RemoteAddr().String()
+		req, err := message.UnpackReq(head, buff)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		t.ctx.Send(t.Pid(), req)
+	}
+}
+
+func (t *transport) readUDP(conn *net.UDPConn) {
+	buff := make([]byte, 102400)
+
+	for {
+		_, remoteAddr, err := conn.ReadFromUDP(buff)
+		switch err {
+		case nil:
+		default:
+			t.ctx.Send(t.Pid(), &message.Close{Addr: remoteAddr.String()})
+			fmt.Println(err)
+			return
+		}
+
+		head := message.UnpackHead(buff)
+		head.Addr = remoteAddr.String()
 		req, err := message.UnpackReq(head, buff)
 		if err != nil {
 			fmt.Println(err)

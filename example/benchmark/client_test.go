@@ -12,7 +12,8 @@ const (
 )
 
 func Benchmark_client(b *testing.B) {
-	conn, err := net.Dial("tcp", ADDR)
+	addr, err := net.ResolveUDPAddr("udp", ADDR)
+	conn, err := net.DialUDP("udp", nil, addr)
 	if err != nil {
 		panic(err)
 	}
