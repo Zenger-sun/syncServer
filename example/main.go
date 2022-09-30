@@ -89,7 +89,7 @@ func NewLoginSvc(ctx *syncServer.Context) syncServer.ServiceItf {
 
 func main() {
 	sync := syncServer.NewContext()
-	addr, _ := net.ResolveTCPAddr("tcp", "192.168.1.7:8000")
+	addr, _ := net.ResolveTCPAddr("tcp", "127.0.0.1:8000")
 
 	sync.Setup(addr)
 	sync.RegisterSvc(NewLoginSvc(sync))
