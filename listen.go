@@ -36,7 +36,12 @@ func (l *listen) server(transport *transport) error {
 }
 
 func (l *listen) close() {
-	l.Close()
+	switch l.addr.Network() {
+	case "tcp":
+		l.Listener.Close()
+	case "udp":
+		l.UDPConn.Close()
+	}
 }
 
 func NewListen(addr net.Addr) (*listen, error) {

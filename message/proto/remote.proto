@@ -4,23 +4,39 @@ package goproto.protoc.proto3;
 
 option go_package = "../pb";
 
+// ***************** 同步类消息 ***************** //
+
+// 测试消息
 message TestMsg {
-    string content = 1;
+    int64 timeStep = 1;    // 生成消息时时间戳
 }
 
+// 消息同步
 message SyncMsg {
-    uint32 userId = 1;
-    MoveInput moveInput = 2;
-    DragInput viewInput = 3;
-    repeated KeyInput keyInput = 4;
+    // 状态
+    uint32 userId = 1;          // 玩家标识
+    MVector3 position = 2;      // 当前位置
+    MQuaternion rotation = 3;   // 当前朝向
+
+    // 输入
+    MVector2 moveInput = 4;         // 移动输入
+    repeated KeyInput keyInput = 5; // 按键输入
 }
 
-message MoveInput {
+message MQuaternion {
     float x = 1;
     float y = 2;
+    float z = 3;
+    float w = 4;
 }
 
-message DragInput {
+message MVector3 {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}
+
+message MVector2 {
     float x = 1;
     float y = 2;
 }
@@ -34,13 +50,16 @@ message KeyInput {
 
     KeyType keyType = 1;
     bool keyDown = 2;
-    DragInput dragInput = 3;
 }
 
+// ***************** 请求类消息 ***************** //
+
+// 登录请求
 message LoginReq {
     uint32 user_id = 1;
 }
 
+// 登录响应
 message LoginRes {
     uint32 user_id = 1;
     bool   result = 2;

@@ -49,6 +49,8 @@ func (l *LoginSvc) Login(req *pb.LoginReq) *message.Res {
 	var loginRes pb.LoginRes
 	loginRes.Result = true
 
+	fmt.Printf("Login req userId: %v\n", req.UserId)
+
 	if req.UserId == USER_ID_NOT_SET {
 		loginRes.UserId = uint32(len(l.users) + USER_ID_START)
 		l.users[loginRes.UserId] = true
@@ -60,6 +62,8 @@ func (l *LoginSvc) Login(req *pb.LoginReq) *message.Res {
 			loginRes.UserId = req.UserId
 		}
 	}
+
+	fmt.Printf("Login res userId: %v\n", loginRes.UserId)
 
 	return &message.Res{
 		Head: &message.Head{
