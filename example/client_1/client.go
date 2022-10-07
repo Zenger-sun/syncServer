@@ -30,7 +30,7 @@ func main() {
 				continue
 			}
 
-			head := message.UnpackHead(pack)
+			head, _ := message.UnpackHead(pack)
 			fmt.Printf("head: %+v\t", head)
 			req, err := message.UnpackReq(head, pack)
 			if err != nil {

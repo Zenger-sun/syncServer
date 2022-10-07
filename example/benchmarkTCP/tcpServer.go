@@ -42,7 +42,7 @@ func read(conn net.Conn) {
 			return
 		}
 
-		head := message.UnpackHead(buff)
+		head, _ := message.UnpackHead(buff)
 		head.Addr = conn.RemoteAddr().String()
 		req, err := message.UnpackReq(head, buff)
 		if err != nil {

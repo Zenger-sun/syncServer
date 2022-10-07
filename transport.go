@@ -54,7 +54,7 @@ func (t *transport) Pid() *actor.PID {
 }
 
 func (t *transport) readTCP(conn net.Conn) {
-	buff := make([]byte, 102400)
+	buff := make([]byte, message.PACK_MAX_LEN)
 
 	defer func() {
 		t.ctx.Send(t.Pid(), &message.Close{Addr: conn.RemoteAddr().String()})
@@ -70,8 +70,13 @@ func (t *transport) readTCP(conn net.Conn) {
 			return
 		}
 
-		head := message.UnpackHead(buff)
+		head, err := message.UnpackHead(buff)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
 		head.Addr = conn.RemoteAddr().String()
+
 		req, err := message.UnpackReq(head, buff)
 		if err != nil {
 			fmt.Println(err)
@@ -83,7 +88,7 @@ func (t *transport) readTCP(conn net.Conn) {
 }
 
 func (t *transport) readUDP(conn *net.UDPConn) {
-	buff := make([]byte, 102400)
+	buff := make([]byte, message.PACK_MAX_LEN)
 
 	for {
 		_, remoteAddr, err := conn.ReadFromUDP(buff)
@@ -95,8 +100,13 @@ func (t *transport) readUDP(conn *net.UDPConn) {
 			return
 		}
 
-		head := message.UnpackHead(buff)
-		head.Addr = remoteAddr.String()
+		head, err := message.UnpackHead(buff)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		head.Addr = conn.RemoteAddr().String()
+
 		req, err := message.UnpackReq(head, buff)
 		if err != nil {
 			fmt.Println(err)

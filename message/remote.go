@@ -19,6 +19,8 @@ const (
 
 	// server
 	SERVER_REQ
+
+	WRITE_TYPE_END
 )
 
 type MsgType uint16
@@ -29,6 +31,8 @@ const (
 	SYNC_MSG
 	LOGIN_REQ_MSG
 	LOGIN_RES_MSG
+
+	MSG_TYPE_END
 )
 
 func (m MsgType) GetMsgStruct() proto.Message {

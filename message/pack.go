@@ -3,15 +3,17 @@ package message
 import (
 	"bytes"
 	"encoding/binary"
-	
+	"errors"
+
 	"github.com/golang/protobuf/proto"
 )
 
 const (
+	PACK_MAX_LEN = 102400
 	HEAD_LEN = 9
 )
 
-func UnpackHead(msg []byte) *Head {
+func UnpackHead(msg []byte) (*Head, error) {
 	var head Head
 
 	head.Len = uint32(msg[0]) | uint32(msg[1])<<8 | uint32(msg[2])<<16 | uint32(msg[3])<<24
@@ -23,7 +25,17 @@ func UnpackHead(msg []byte) *Head {
 		head.LockStep = true
 	}
 
-	return &head
+	if head.Len > (PACK_MAX_LEN + HEAD_LEN) {
+		return nil, errors.New("msg len error!")
+	}
+	if head.MsgType >= MSG_TYPE_END {
+		return nil, errors.New("msg type error!")
+	}
+	if head.WriteType >= WRITE_TYPE_END {
+		return nil, errors.New("write type error!")
+	}
+
+	return &head, nil
 }
 
 func UnpackReq(head *Head, msg []byte) (*Req, error) {
