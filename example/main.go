@@ -7,10 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/Zenger-sun/syncServer"
 	"github.com/Zenger-sun/syncServer/message"
 	"github.com/Zenger-sun/syncServer/message/pb"
+	"github.com/asynkron/protoactor-go/actor"
 )
 
 const (

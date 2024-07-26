@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/Zenger-sun/syncServer/message"
-	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/asynkron/protoactor-go/actor"
 )
 
 var trans *actor.PID
