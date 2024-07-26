@@ -2,9 +2,10 @@ package benchmark
 
 import (
 	"net"
-	"syncServer/message"
-	"syncServer/message/pb"
 	"testing"
+
+	"github.com/Zenger-sun/syncServer/message"
+	"github.com/Zenger-sun/syncServer/message/pb"
 )
 
 const (
@@ -33,7 +34,7 @@ func Benchmark_client(b *testing.B) {
 				continue
 			}
 
-			head := message.UnpackHead(pack)
+			head, err := message.UnpackHead(pack)
 			_, err = message.UnpackReq(head, pack)
 			if err != nil {
 				continue

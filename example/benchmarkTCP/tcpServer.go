@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"net"
-	"syncServer/message"
-	"syncServer/message/pb"
+
+	"github.com/Zenger-sun/syncServer/message"
+	"github.com/Zenger-sun/syncServer/message/pb"
 )
 
 const ADDR = "127.0.0.1:8000"

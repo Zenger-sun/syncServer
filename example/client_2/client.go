@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"net"
 
-	"syncServer/message"
-	"syncServer/message/pb"
-
+	"github.com/Zenger-sun/syncServer/message"
+	"github.com/Zenger-sun/syncServer/message/pb"
 	"github.com/gogo/protobuf/proto"
 )
 

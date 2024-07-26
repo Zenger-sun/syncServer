@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/AsynkronIT/protoactor-go/actor"
 	"net"
 	"os"
 	"os/signal"
-	"syncServer/message"
-	"syncServer/message/pb"
 	"syscall"
 
-	"syncServer"
+	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/Zenger-sun/syncServer"
+	"github.com/Zenger-sun/syncServer/message"
+	"github.com/Zenger-sun/syncServer/message/pb"
 )
 
 const (
