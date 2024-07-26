@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"syncServer/message"
+	"github.com/Zenger-sun/syncServer/message"
 )
 
 type listen struct {

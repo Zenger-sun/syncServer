@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"syncServer/message"
-
+	"github.com/Zenger-sun/syncServer/message"
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
