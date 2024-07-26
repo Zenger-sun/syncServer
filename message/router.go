@@ -1,8 +1,7 @@
 package message
 
 import (
-	"syncServer/message/pb"
-
+	"github.com/Zenger-sun/syncServer/message/pb"
 	"github.com/gogo/protobuf/proto"
 )
 
